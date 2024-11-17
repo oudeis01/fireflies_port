@@ -1,2 +1,2 @@
 ofxAutoReloadedShader
-ofxGui
+ofxImGui

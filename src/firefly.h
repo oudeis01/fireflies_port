@@ -24,6 +24,7 @@ public:
     float increment=0.004;
     float decrement=0.03;
     float delta=0.2;
+    int start_offset_frame;
     bool isDischarging=false;
     bool isBlinking=false;
 

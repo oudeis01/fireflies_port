@@ -10,7 +10,7 @@
 		{
 		"path": "${workspaceRoot}/../../../../addons/ofxAutoReloadedShader"
 		},{
-		"path": "${workspaceRoot}/../../../../addons/ofxGui"
+		"path": "${workspaceRoot}/../../../../addons/ofxImGui"
 		}
 	],
 	"settings": {}

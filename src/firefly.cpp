@@ -7,6 +7,7 @@ void Firefly::setup(glm::vec2 pos, glm::vec2 vel, float brightness, float value)
     this->vel = vel;
     this->brightness = brightness;
     this->value = value;
+    this->start_offset_frame = ofRandom(60*5, 60*10);
 }
 
 
@@ -18,6 +19,7 @@ void Firefly::update() {
     if (pos.y < 0 || pos.y > ofGetHeight()) {
         vel.y *= -1;
     }
+    // if(start_offset_frame > ofGetFrameNum()) return;
     value += increment;
     if(value > 1) {
         value = 1;

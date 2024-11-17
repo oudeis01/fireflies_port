@@ -1,12 +1,15 @@
 #include "ofApp.h"
 
-#define RADIUS 70
+// 70 not reached
+// 80 reached
+#define RADIUS 75
 
 void ofApp::blinkEvent(FireflyEvent & e) {
     
 
     int count = 0;
     for(size_t i=0; i<fireflies.size(); i++) {
+        if(fireflies[i].start_offset_frame > ofGetFrameNum()) continue;
         if(e.idx == i) continue;
         if(glm::distance(fireflies[i].pos, e.pos) < RADIUS) {
             fireflies[i].deltaCharge();
@@ -40,7 +43,20 @@ void ofApp::setup(){
         fireflies.push_back(f);
     }
 
+    // find the main firefly closest to the center of the screen
+    float min_dist = 100000;
+    for(auto& f : fireflies) {
+        float dist = glm::distance(f.pos, glm::vec2(width/2, height/2));
+        if(dist < min_dist) {
+            min_dist = dist;
+            main_firefly = &f;
+        }
+    }
+
     ofAddListener(Firefly::onFireflyBlink, this, &ofApp::blinkEvent);
+
+
+    gui.setup();
 
 }
 
@@ -76,11 +92,15 @@ void ofApp::draw(){
     ofPushStyle();
     ofSetColor(255,0,0);
     ofNoFill();
-    ofDrawCircle(fireflies[0].pos, RADIUS);
+    ofDrawCircle(main_firefly->pos, RADIUS);
     ofPopStyle();
 
 
     ofDrawBitmapString(ss.str(), 20, 20);
+
+    gui.draw();
+
+
 }
 
 //--------------------------------------------------------------

@@ -1,10 +1,9 @@
 #pragma once
 
 #include "ofMain.h"
+#include "gui.h"
 #include "firefly.h"
 #define NUM_FIREFLIES 400
-
-
 
 class ofApp : public ofBaseApp{
 
@@ -18,6 +17,9 @@ public:
 
 	float width, height;
 	vector<Firefly> fireflies;
+	Firefly* main_firefly;
+
+	ParamGui gui;
 	
 
 		

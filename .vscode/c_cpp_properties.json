@@ -86,7 +86,7 @@
                 "${PROJECT_ADDON_INCLUDES}",
                 "${PROJECT_EXTRA_INCLUDES}",
                 "/home/haramchoi/openframeworks/of_v20240804_linux64_gcc6_release/addons/ofxAutoReloadedShader/src/**",
-                "/home/haramchoi/openframeworks/of_v20240804_linux64_gcc6_release/addons/ofxGui/src/**"
+                "/home/haramchoi/openframeworks/of_v20240804_linux64_gcc6_release/addons/ofxImGui/src/**"
             ],
             "browse": {
                 "limitSymbolsToIncludedHeaders": true,
