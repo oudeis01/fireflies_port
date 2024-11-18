@@ -3,7 +3,7 @@
 #include "ofMain.h"
 #include "gui.h"
 #include "firefly.h"
-#define NUM_FIREFLIES 400
+#define NUM_FIREFLIES 1500
 
 class ofApp : public ofBaseApp{
 
@@ -18,8 +18,10 @@ public:
 	float width, height;
 	vector<Firefly> fireflies;
 	Firefly* main_firefly;
-
 	ParamGui gui;
+	static int RADIUS;
+	bool breset;
+	bool bdebug;
 	
 
 		

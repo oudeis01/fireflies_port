@@ -14,16 +14,16 @@ public:
     void draw();
     void unBlink();
     void deltaCharge();
-
+    void reset();
 
     glm::vec2 pos;
     glm::vec2 vel;
     float brightness;
     float value;
-    float default_brightness= 30;
-    float increment=0.004;
-    float decrement=0.03;
-    float delta=0.2;
+    static float default_brightness;
+    static float increment;
+    static float decrement;
+    static float delta;
     int start_offset_frame;
     bool isDischarging=false;
     bool isBlinking=false;

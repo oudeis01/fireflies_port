@@ -2,22 +2,17 @@
 
 // 70 not reached
 // 80 reached
-#define RADIUS 75
+// 75 reached
 
+int ofApp::RADIUS = 95;
+//--------------------------------------------------------------
 void ofApp::blinkEvent(FireflyEvent & e) {
-    
-
-    int count = 0;
     for(size_t i=0; i<fireflies.size(); i++) {
         if(fireflies[i].start_offset_frame > ofGetFrameNum()) continue;
         if(e.idx == i) continue;
-        if(glm::distance(fireflies[i].pos, e.pos) < RADIUS) {
+        if(glm::distance(fireflies[i].pos, e.pos) < ofApp::RADIUS) {
             fireflies[i].deltaCharge();
-            count++;
         }
-    }
-    if(count > 0) {
-        ofLog() << "blinkEvent: " << e.idx << " " << count;
     }
 }
 
@@ -43,7 +38,7 @@ void ofApp::setup(){
         fireflies.push_back(f);
     }
 
-    // find the main firefly closest to the center of the screen
+    // find the firefly closest to the center of the screen
     float min_dist = 100000;
     for(auto& f : fireflies) {
         float dist = glm::distance(f.pos, glm::vec2(width/2, height/2));
@@ -52,10 +47,7 @@ void ofApp::setup(){
             main_firefly = &f;
         }
     }
-
     ofAddListener(Firefly::onFireflyBlink, this, &ofApp::blinkEvent);
-
-
     gui.setup();
 
 }
@@ -72,6 +64,25 @@ void ofApp::update(){
             fireflies[i].unBlink();
         }
     }
+    gui.computeAverageCharge(fireflies);
+    gui.computeAverageBrightness(fireflies);
+    gui.updatePlot();
+
+    if(breset){
+        for(auto& f : fireflies) {
+            f.reset();
+        }
+        breset = false;
+        // find the firefly closest to the center of the screen
+        float min_dist = 100000;
+        for(auto& f : fireflies) {
+            float dist = glm::distance(f.pos, glm::vec2(width/2, height/2));
+            if(dist < min_dist) {
+                min_dist = dist;
+                main_firefly = &f;
+            }
+        }
+    }
 }
 
 //--------------------------------------------------------------
@@ -79,26 +90,25 @@ void ofApp::draw(){
     for(auto& f : fireflies) {
         f.draw();
     }
-
-
-    ofSetColor(255);
-    stringstream ss;
-    ss << "fps" << '\t' << ofGetFrameRate() << endl;
-    for(int i=0; i<10; ++i){
-        ss << (fireflies[i].isDischarging?"dis":"chg") << '\t';
-        ss << fireflies[i].value << '\n';
+    if(bdebug){
+        ofPushStyle();
+        ofSetColor(255,0,0);
+        ofNoFill();
+        ofDrawCircle(main_firefly->pos, ofApp::RADIUS);
+        ofPopStyle();
     }
+    
 
-    ofPushStyle();
-    ofSetColor(255,0,0);
-    ofNoFill();
-    ofDrawCircle(main_firefly->pos, RADIUS);
-    ofPopStyle();
+    
+    stringstream ss;
+    ss << std::fixed << std::setprecision(2);
+    ss << ofGetFrameRate() << '\t'
+    << gui.average_charge << '\t'
+    << gui.average_brightness;
+    ofSetColor(255);
+    ofDrawBitmapString(ss.str(), 10, height-10);
 
-
-    ofDrawBitmapString(ss.str(), 20, 20);
-
-    gui.draw();
+    gui.draw(ofApp::RADIUS, Firefly::delta, Firefly::increment, Firefly::decrement, Firefly::default_brightness, breset);
 
 
 }
@@ -110,7 +120,9 @@ void ofApp::exit(){
 
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key){
-
+    if(key == 'd'){
+        bdebug = !bdebug;
+    }
 }
 
 //--------------------------------------------------------------
