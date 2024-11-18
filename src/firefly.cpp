@@ -73,7 +73,7 @@ void Firefly::reset() {
     // this->pos = glm::vec2(ofRandomuf()*ofGetWidth(), ofRandomuf()*ofGetHeight());
     this->vel = glm::vec2(ofRandomf(), ofRandomf());
     this->vel *= 0.1;
-    this->brightness = ofRandom(100, 255);
+    this->brightness = default_brightness;
     this->value = ofRandomuf();
     this->start_offset_frame = ofRandom(60, 60*5) + ofGetFrameNum();
 }
