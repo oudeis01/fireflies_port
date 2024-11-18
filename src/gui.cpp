@@ -17,16 +17,17 @@ void ParamGui::setup() {
     fbo_brightness_plot.allocate(fboSettings) ;
 }
 
-void ParamGui::draw(int& radius, float& delta, float& increment, float& decrement, float& default_brightness, bool& _reset) {
+void ParamGui::draw(int& radius, float& delta, float& increment, float& decrement, float& default_brightness, bool& _reset, float etime_offset) {
     gui.begin();
     ImGui::Begin("Parameters");
-    _reset = ImGui::Button("reset");
+    ImGui::Text("Elapsed %.1f", ofGetElapsedTimef()-etime_offset);
     ImGui::SliderInt("radius", &radius, 0.0, 200.0, "%d", ImGuiSliderFlags_None);
     ImGui::SliderFloat("delta", &delta, 0.0, 0.5, "%.3f", ImGuiSliderFlags_None);
     ImGui::SliderFloat("inc", &increment, 0.0, 0.5, "%.3f", ImGuiSliderFlags_None);
     ImGui::SliderFloat("dec", &decrement, 0.0, 0.5, "%.3f", ImGuiSliderFlags_None);
     ImGui::SliderFloat("b(def)", &default_brightness, 0.0, 255.0, "%.3f", ImGuiSliderFlags_None);
-    ImGui::Text("%.3f charge(avg)", average_charge);
+    ImGui::Text("%.3f charge(avg)", average_charge); ImGui::SameLine();
+    ImGui::ProgressBar(average_charge, ImVec2(-FLT_MIN,0.0f));
     ImGui::Image(
         (ImTextureID)(uintptr_t)fbo_charge_plot.getTexture().getTextureData().textureID,
         ImVec2(PLOT_WIDTH, PLOT_HEIGHT),
@@ -34,8 +35,8 @@ void ParamGui::draw(int& radius, float& delta, float& increment, float& decremen
         ImVec4(1.0f, 1.0f, 1.0f, 1.0f),
         ImGui::GetStyleColorVec4(ImGuiCol_Border)
         );
-
-    ImGui::Text("%.3f brightness(avg)", average_brightness);
+    ImGui::Text("%.3f bright(avg)", average_brightness);ImGui::SameLine();
+    ImGui::ProgressBar(average_brightness, ImVec2(-FLT_MIN,0.0f));
     ImGui::Image(
         (ImTextureID)(uintptr_t)fbo_brightness_plot.getTexture().getTextureData().textureID,
         ImVec2(PLOT_WIDTH, PLOT_HEIGHT),
@@ -43,6 +44,7 @@ void ParamGui::draw(int& radius, float& delta, float& increment, float& decremen
         ImVec4(1.0f, 1.0f, 1.0f, 1.0f),
         ImGui::GetStyleColorVec4(ImGuiCol_Border)
         );
+    _reset = ImGui::Button("reset");
     ImGui::End();
 
     gui.end();

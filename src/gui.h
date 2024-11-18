@@ -7,7 +7,7 @@
 class ParamGui {
 public:
     void setup();
-    void draw(int& radius, float& delta, float& increment, float& decrement, float& default_brightness, bool& _reset);
+    void draw(int& radius, float& delta, float& increment, float& decrement, float& default_brightness, bool& _reset, float etime_offset);
     void computeAverageCharge(vector<Firefly>& fireflies);
     void computeAverageBrightness(vector<Firefly>& fireflies);
     void updatePlot();

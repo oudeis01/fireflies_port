@@ -69,6 +69,7 @@ void ofApp::update(){
     gui.updatePlot();
 
     if(breset){
+        etime_offset = ofGetElapsedTimef();
         for(auto& f : fireflies) {
             f.reset();
         }
@@ -102,13 +103,15 @@ void ofApp::draw(){
     
     stringstream ss;
     ss << std::fixed << std::setprecision(2);
-    ss << ofGetFrameRate() << '\t'
+    
+    ss << ofGetElapsedTimef() << '\t'
+    << ofGetFrameRate() << '\t'
     << gui.average_charge << '\t'
     << gui.average_brightness;
     ofSetColor(255);
     ofDrawBitmapString(ss.str(), 10, height-10);
 
-    gui.draw(ofApp::RADIUS, Firefly::delta, Firefly::increment, Firefly::decrement, Firefly::default_brightness, breset);
+    gui.draw(ofApp::RADIUS, Firefly::delta, Firefly::increment, Firefly::decrement, Firefly::default_brightness, breset, etime_offset);
 
 
 }

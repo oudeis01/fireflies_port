@@ -22,6 +22,7 @@ public:
 	static int RADIUS;
 	bool breset;
 	bool bdebug;
+	float etime_offset;
 	
 
 		
