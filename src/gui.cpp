@@ -2,12 +2,15 @@
 
 #define PLOT_WIDTH 400
 #define PLOT_HEIGHT 100
-#define DENSITY 2
+#define DENSITY 8
 
 
 void ParamGui::setup() {
     gui.setup(nullptr, true, ImGuiConfigFlags_ViewportsEnable,false);
     ImGui::StyleColorsDark();
+    ImGuiStyle* style = &ImGui::GetStyle();
+    ImVec4* colors = style->Colors;
+    colors[ImGuiCol_PlotHistogram] = ImVec4(0.24f*0.7, 0.52f*0.7, 0.88f*0.7, 1.00f);
     ofFbo::Settings fboSettings;
     fboSettings.width = PLOT_WIDTH;
     fboSettings.height = PLOT_HEIGHT;

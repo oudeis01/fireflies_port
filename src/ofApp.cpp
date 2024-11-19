@@ -4,7 +4,7 @@
 // 80 reached
 // 75 reached
 
-int ofApp::RADIUS = 95;
+int ofApp::RADIUS = 90;
 //--------------------------------------------------------------
 void ofApp::blinkEvent(FireflyEvent & e) {
     for(size_t i=0; i<fireflies.size(); i++) {
@@ -111,7 +111,15 @@ void ofApp::draw(){
     ofSetColor(255);
     ofDrawBitmapString(ss.str(), 10, height-10);
 
-    gui.draw(ofApp::RADIUS, Firefly::delta, Firefly::increment, Firefly::decrement, Firefly::default_brightness, breset, etime_offset);
+    gui.draw(
+        ofApp::RADIUS,
+        Firefly::delta,
+        Firefly::increment,
+        Firefly::decrement,
+        Firefly::default_brightness,
+        breset,
+        etime_offset
+    );
 
 
 }
