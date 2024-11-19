@@ -1,5 +1,5 @@
 #include "ofMain.h"
-#include "ofApp.h"
+#include "simulator.h"
 
 //========================================================================
 int main( ){
@@ -9,7 +9,7 @@ int main( ){
 
 	auto window = ofCreateWindow(settings);
 
-	ofRunApp(window, std::make_shared<ofApp>());
+	ofRunApp(window, std::make_shared<Simulator>());
 	ofRunMainLoop();
 
 }

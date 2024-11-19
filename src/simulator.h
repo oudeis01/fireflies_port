@@ -5,7 +5,7 @@
 #include "firefly.h"
 #define NUM_FIREFLIES 1500
 
-class ofApp : public ofBaseApp{
+class Simulator : public ofBaseApp{
 
 public:
 	void setup() override;

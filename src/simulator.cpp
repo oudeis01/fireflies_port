@@ -1,23 +1,23 @@
-#include "ofApp.h"
+#include "simulator.h"
 
 // 70 not reached
 // 80 reached
 // 75 reached
 
-int ofApp::RADIUS = 90;
+int Simulator::RADIUS = 90;
 //--------------------------------------------------------------
-void ofApp::blinkEvent(FireflyEvent & e) {
+void Simulator::blinkEvent(FireflyEvent & e) {
     for(size_t i=0; i<fireflies.size(); i++) {
         if(fireflies[i].start_offset_frame > ofGetFrameNum()) continue;
         if(e.idx == i) continue;
-        if(glm::distance(fireflies[i].pos, e.pos) < ofApp::RADIUS) {
+        if(glm::distance(fireflies[i].pos, e.pos) < Simulator::RADIUS) {
             fireflies[i].deltaCharge();
         }
     }
 }
 
 //--------------------------------------------------------------
-void ofApp::setup(){
+void Simulator::setup(){
     ofBackground(0);
     ofSetVerticalSync(false);
     ofSetFrameRate(60);
@@ -47,13 +47,13 @@ void ofApp::setup(){
             main_firefly = &f;
         }
     }
-    ofAddListener(Firefly::onFireflyBlink, this, &ofApp::blinkEvent);
+    ofAddListener(Firefly::onFireflyBlink, this, &Simulator::blinkEvent);
     gui.setup();
 
 }
 
 //--------------------------------------------------------------
-void ofApp::update(){
+void Simulator::update(){
     for(size_t i=0; i<fireflies.size(); i++) {
         fireflies[i].update();
         if(fireflies[i].isBlinking) {
@@ -87,7 +87,7 @@ void ofApp::update(){
 }
 
 //--------------------------------------------------------------
-void ofApp::draw(){
+void Simulator::draw(){
     for(auto& f : fireflies) {
         f.draw();
     }
@@ -95,7 +95,7 @@ void ofApp::draw(){
         ofPushStyle();
         ofSetColor(255,0,0);
         ofNoFill();
-        ofDrawCircle(main_firefly->pos, ofApp::RADIUS);
+        ofDrawCircle(main_firefly->pos, Simulator::RADIUS);
         ofPopStyle();
     }
     
@@ -112,7 +112,7 @@ void ofApp::draw(){
     ofDrawBitmapString(ss.str(), 10, height-10);
 
     gui.draw(
-        ofApp::RADIUS,
+        Simulator::RADIUS,
         Firefly::delta,
         Firefly::increment,
         Firefly::decrement,
@@ -125,12 +125,12 @@ void ofApp::draw(){
 }
 
 //--------------------------------------------------------------
-void ofApp::exit(){
+void Simulator::exit(){
 
 }
 
 //--------------------------------------------------------------
-void ofApp::keyPressed(int key){
+void Simulator::keyPressed(int key){
     if(key == 'd'){
         bdebug = !bdebug;
     }
