@@ -17,6 +17,8 @@ concurrency:
 env:
   ccache: ccache  
   MY_PROJECT_DIR: "fireflies-port"
+  CCACHE_DIR: ~/ccache
+  CXXFLAGS: "-std=c++20 -Wall -Wextra"
 
 jobs:
   build-project:
@@ -29,18 +31,25 @@ jobs:
       TARGET: ${{ matrix.cfg.target }}
 
     steps:
-    - name: Set Up Dependencies
+
+    - name: Configure ccache for g++-11
       run: |
-        sudo apt-get update
-        sudo apt-get install -y ccache wget2 make curl libunwind-dev libjack-jackd2-dev \
-          freeglut3-dev libasound2-dev libxmu-dev libxxf86vm-dev g++ libgl1-mesa-dev libglu1-mesa-dev \
-          libraw1394-dev libudev-dev libdrm-dev libglew-dev libopenal-dev libsndfile1-dev \
-          libfreeimage-dev libcairo2-dev libfreetype6-dev libssl-dev libpulse-dev libusb-1.0-0-dev \
-          libgtk2.0-dev libopencv-dev libassimp-dev librtaudio-dev gdb libglfw3-dev liburiparser-dev \
-          libcurl4-openssl-dev libpugixml-dev libgconf-2-4 libgtk2.0-0 libpoco-dev libxcursor-dev \
-          libxi-dev libxinerama-dev libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev \
-          gstreamer1.0-libav gstreamer1.0-pulseaudio gstreamer1.0-x gstreamer1.0-plugins-bad \
-          gstreamer1.0-alsa gstreamer1.0-plugins-base gstreamer1.0-plugins-good
+        sudo apt-get install -y gcc-11 g++-11
+        sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-11 100
+        sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-11 100
+        ccache --set-config=compiler_check=content
+        - name: Set Up Dependencies
+          run: |
+            sudo apt-get update
+            sudo apt-get install -y ccache wget2 make curl libunwind-dev libjack-jackd2-dev \
+              freeglut3-dev libasound2-dev libxmu-dev libxxf86vm-dev g++ libgl1-mesa-dev libglu1-mesa-dev \
+              libraw1394-dev libudev-dev libdrm-dev libglew-dev libopenal-dev libsndfile1-dev \
+              libfreeimage-dev libcairo2-dev libfreetype6-dev libssl-dev libpulse-dev libusb-1.0-0-dev \
+              libgtk2.0-dev libopencv-dev libassimp-dev librtaudio-dev gdb libglfw3-dev liburiparser-dev \
+              libcurl4-openssl-dev libpugixml-dev libgconf-2-4 libgtk2.0-0 libpoco-dev libxcursor-dev \
+              libxi-dev libxinerama-dev libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev \
+              gstreamer1.0-libav gstreamer1.0-pulseaudio gstreamer1.0-x gstreamer1.0-plugins-bad \
+              gstreamer1.0-alsa gstreamer1.0-plugins-base gstreamer1.0-plugins-good
 
     - name: Cache ccache
       uses: actions/cache@v3
@@ -86,6 +95,9 @@ jobs:
 
     - name: Install Dependencies
       run: cd of_root && ./scripts/ci/${{ matrix.cfg.target }}/install.sh
+      
+    - name: Check ccache Stats
+      run: ccache -s
 
     - name: Build openFrameworks Core
       run: cd of_root && ./scripts/ci/${{ matrix.cfg.target }}/build.sh
