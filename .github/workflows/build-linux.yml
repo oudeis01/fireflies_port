@@ -53,6 +53,14 @@ jobs:
       - name: Install libunwind-dev
         run: sudo apt-get install libunwind-dev
 
+      # install deps
+      - name: Install deps for ubuntu
+        run: sudo ./ofx/scripts/linux/ubuntu/install_dependencies.sh;
+
+      # install codecs
+      - name: Install codecs
+        run: sudo ./ofx/scripts/linux/ubuntu/install_codecs.sh;
+
       # Download libs (adapted from official workflow)
       - name: Download libs
         run: ./ofx/scripts/linux/download_libs.sh -a ${{ matrix.cfg.libs }};
