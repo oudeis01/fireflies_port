@@ -65,7 +65,7 @@ jobs:
       - name: Build the project
         run: |
           cd of_v0.12.0_linux64gcc6_release/apps/myApps/fireflies_port
-          make -j$(nproc) CXXFLAGS="-D__has_feature(x)=0"
+          make -j$(nproc)
 
 
       # Upload binary as release
