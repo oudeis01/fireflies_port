@@ -105,7 +105,7 @@ OF_ROOT = ../../..
 #
 #   Note: Leave a leading space when adding list items with the += operator
 ################################################################################
-PROJECT_CFLAGS = -D__has_feature(x)=0
+PROJECT_CFLAGS = -D__has_feature\(x\)=0
 
 ################################################################################
 # PROJECT OPTIMIZATION CFLAGS
