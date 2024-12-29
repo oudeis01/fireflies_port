@@ -55,6 +55,9 @@ jobs:
     - name: Download openFrameworks Libraries
       run: cd of_root && ./scripts/linux/download_libs.sh -a ${{ matrix.cfg.libs }}
 
+    - name: install libunwind-dev
+      run: sudo apt-get install libunwind-dev
+
     - name: Install Dependencies
       run: cd of_root && ./scripts/ci/${{ matrix.cfg.target }}/install.sh
 
