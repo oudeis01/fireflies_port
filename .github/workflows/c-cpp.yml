@@ -31,7 +31,7 @@ jobs:
           path: |
             /var/cache/apt/archives
             /var/lib/apt/lists
-          key: ${{ runner.os }}-apt-of-${{ hashFiles('of_v0.12.0_linux64gcc6_release/scripts/linux/ubuntu/install_dependencies.sh', '/etc/apt/sources.list', '/etc/apt/sources.list.d/**') }}
+          key: ${{ runner.os }}-apt-of-${{ hashFiles('/etc/apt/sources.list', '/etc/apt/sources.list.d/**') }} # Key ONLY based on apt sources
           restore-keys: |
             ${{ runner.os }}-apt-of-
 
