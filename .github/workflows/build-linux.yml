@@ -36,7 +36,7 @@ jobs:
         with:
           repository:  jvcleave/ofxImGui
           path: ofx/addons/ofxImGui
-          branch: develop
+          ref: develop
       - name: Checkout ofxTextureRecorder addon
         uses: actions/checkout@v4
         with:
