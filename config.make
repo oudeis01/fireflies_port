@@ -105,6 +105,7 @@ OF_ROOT = ../../..
 #
 #   Note: Leave a leading space when adding list items with the += operator
 ################################################################################
+# to bypass compiler error when compiling ofxImGui
 PROJECT_CFLAGS = -D__has_feature\(x\)=0
 
 ################################################################################
