@@ -97,13 +97,20 @@ jobs:
       run: sudo apt-get install libunwind-dev
 
     - name: Install Dependencies
-      run: cd of_root && ./scripts/ci/${{ matrix.cfg.target }}/install.sh
+      # run: cd of_root && ./scripts/ci/${{ matrix.cfg.target }}/install.sh
+      run: cd of_root/scripts/linux/ubuntu && sudo ./install_dependencies.sh
+
+    - name: install codecs
+      run: cd of_root/scripts/linux/ubuntu && sudo ./install_codecs.sh
 
     - name: Check ccache Stats
       run: ccache -s
 
     - name: Build openFrameworks Core
-      run: cd of_root && ./scripts/ci/${{ matrix.cfg.target }}/build.sh
+      # run: cd of_root && ./scripts/ci/${{ matrix.cfg.target }}/build.sh
+      run: |
+        sed -i 's/JOBS=1/JOBS=$(nproc)/' of_root/scripts/linux/compileOF.sh
+        cd of_root/scripts/linux && ./compileOF.sh -j$(nproc)
 
     - name: Build Your Project
       run: |
