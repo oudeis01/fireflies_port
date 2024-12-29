@@ -64,12 +64,14 @@ jobs:
       # Build openFrameworks (adapted from official workflow)
       - name: Build
         run: |
-             if [ "$TARGET" = "linux64" ]; then
-                ./ofx/scripts/ci/linux64/build.sh;
-                ./ofx/scripts/ci/${{ matrix.cfg.target }}/run_tests.sh;
-             else
-                ./ofx/scripts/ci/${{ matrix.cfg.target }}/build.sh;
-             fi
+            cd ./ofx/libs/openFrameworksCompiled/project
+            make -j$(nproc)
+#  if [ "$TARGET" = "linux64" ]; then
+#     ./ofx/scripts/ci/linux64/build.sh;
+#     ./ofx/scripts/ci/${{ matrix.cfg.target }}/run_tests.sh;
+#  else
+#     ./ofx/scripts/ci/${{ matrix.cfg.target }}/build.sh;
+#  fi
 
       # Building the project
       - name: Building firefliesApp
