@@ -57,18 +57,21 @@ jobs:
           # sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-14 100
     - name: Show GCC Version
       run: g++ --version
+
     - name: Checkout Repository
       uses: actions/checkout@v4
-    - name: Install Dependencies
-      run: ./scripts/ci/$TARGET/install.sh
-    - name: Build
-      run: |
-          if [ "$TARGET" = "linux64" ]; then
-            scripts/ci/linux64/build.sh;
-            scripts/ci/$TARGET/run_tests.sh;
-          else
-            scripts/ci/$TARGET/build.sh;
-          fi
+
+    # - name: Install Dependencies
+    #   run: ./scripts/ci/$TARGET/install.sh
+
+    # - name: Build
+    #   run: |
+    #       if [ "$TARGET" = "linux64" ]; then
+    #         scripts/ci/linux64/build.sh;
+    #         scripts/ci/$TARGET/run_tests.sh;
+    #       else
+    #         scripts/ci/$TARGET/build.sh;
+    #       fi
 
     - name: Cache ccache
       uses: actions/cache@v3
@@ -77,19 +80,13 @@ jobs:
         key: ccache-${{ runner.os }}-${{ matrix.cfg.target }}
         restore-keys: |
           ccache-${{ runner.os }}-
-
-    - name: Configure ccache for g++-11
-      run: |
-        sudo apt-get install -y gcc-11 g++-11
-        sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-11 100
-        sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-11 100
-        ccache --set-config=compiler_check=content
-        
-
+          
     - name: Configure ccache
       run: |
+        ccache --set-config=compiler_check=content
         ccache --zero-stats
         ccache --max-size=5G
+        ccache --set-config=compiler_check=content
 
     - name: Checkout openFrameworks Repository
       uses: actions/checkout@v4
