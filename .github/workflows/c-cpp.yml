@@ -92,6 +92,9 @@ jobs:
           cd of_v0.12.0_linux64gcc6_release/apps/myApps/fireflies_port
           make -j$(nproc)
 
+      - name: Make binary executable
+        run: chmod +x of_v0.12.0_linux64gcc6_release/apps/myApps/fireflies_port/bin/fireflies_port
+
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
