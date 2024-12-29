@@ -4,7 +4,7 @@
 // 80 reached
 // 75 reached
 
-int Simulator::RADIUS = 90;
+int Simulator::RADIUS = 95;
 //--------------------------------------------------------------
 void Simulator::blinkEvent(FireflyEvent & e) {
     for(size_t i=0; i<fireflies.size(); i++) {
@@ -50,6 +50,17 @@ void Simulator::setup(){
     ofAddListener(Firefly::onFireflyBlink, this, &Simulator::blinkEvent);
     gui.setup();
 
+
+
+    // // setup screen capture 
+    // fbo.allocate(width, height, GL_RGB);
+    // ofxTextureRecorder::Settings settings(fbo.getTexture());
+    // settings.imageFormat = OF_IMAGE_FORMAT_PNG;
+    // settings.numThreads = 64;
+    // settings.maxMemoryUsage = 9000000000;
+    // settings.folderPath = "frames";
+    // recorder.setup(settings);
+
 }
 
 //--------------------------------------------------------------
@@ -88,6 +99,8 @@ void Simulator::update(){
 
 //--------------------------------------------------------------
 void Simulator::draw(){
+    // fbo.begin();
+    // ofClear(0,0,0,255);
     for(auto& f : fireflies) {
         f.draw();
     }
@@ -121,6 +134,14 @@ void Simulator::draw(){
         etime_offset
     );
 
+    // fbo.end();
+    // fbo.draw(0,0);
+
+    // if(ofGetElapsedTimef()<60*5){
+    //     recorder.save(fbo.getTexture());
+    // }else{
+    //     ofExit(0);
+    // }
 
 }
 

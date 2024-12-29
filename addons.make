@@ -1,2 +1,3 @@
-ofxAutoReloadedShader
+ofxGui
 ofxImGui
+ofxTextureRecorder

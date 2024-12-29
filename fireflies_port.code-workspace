@@ -1,4 +1,3 @@
-
 {
 	"folders": [
 		{
@@ -8,10 +7,15 @@
 			"path": "${workspaceRoot}/../../../../libs/openFrameworks"
 		},
 		{
-		"path": "${workspaceRoot}/../../../../addons/ofxAutoReloadedShader"
-		},{
-		"path": "${workspaceRoot}/../../../../addons/ofxImGui"
+			"path": "/home/choiharam/openframeworks/of_v20240804_linux64_gcc6_release/addons/ofxGui"
+		},
+		{
+			"path": "/home/choiharam/openframeworks/of_v20240804_linux64_gcc6_release/addons/ofxImGui"
+		},
+		{
+			"path": "/home/choiharam/openframeworks/of_v20240804_linux64_gcc6_release/addons/ofxTextureRecorder"
 		}
 	],
+	"openFrameworksProjectGeneratorVersion": "67",
 	"settings": {}
 }

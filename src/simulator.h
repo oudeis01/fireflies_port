@@ -3,6 +3,7 @@
 #include "ofMain.h"
 #include "gui.h"
 #include "firefly.h"
+#include "ofxTextureRecorder.h"
 #define NUM_FIREFLIES 1500
 
 class Simulator : public ofBaseApp{
@@ -21,9 +22,12 @@ public:
 	ParamGui gui;
 	static int RADIUS;
 	bool breset;
-	bool bdebug;
+	bool bdebug=true;
 	float etime_offset;
 	
+
+	ofxTextureRecorder recorder;
+	ofFbo fbo;
 
 		
 };
