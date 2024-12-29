@@ -1,91 +1,114 @@
-name: Build and Release OpenFrameworks Project
+name: Build and Release fireflies_port with ccache
 
 on:
   push:
     branches:
       - main
+  workflow_dispatch:
 
 jobs:
-  build-and-release:
+  build-of: # Build OpenFrameworks with ccache
     runs-on: ubuntu-latest
-
     steps:
-      # Install libunwind
-      - name: Install libunwind
-        run: sudo apt-get install libunwind-dev
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-      # Cache OpenFrameworks build
-      - name: Cache OpenFrameworks build
-        uses: actions/cache@v3
-        with:
-          path: |
-            of_v0.12.0_linux64gcc6_release/libs
-            of_v0.12.0_linux64gcc6_release/addons
-          key: ${{ runner.os }}-of-v0.12.0-libs-${{ hashFiles('of_v0.12.0_linux64gcc6_release/scripts/linux/ubuntu/install_dependencies.sh') }}
-          restore-keys: |
-            ${{ runner.os }}-of-
-
-      # Download OpenFrameworks
       - name: Download OpenFrameworks
         run: wget https://github.com/openframeworks/openFrameworks/releases/download/0.12.0/of_v0.12.0_linux64gcc6_release.tar.gz
 
-      # Extract OpenFrameworks
       - name: Extract OpenFrameworks
-        run: tar -xvzf of_v0.12.0_linux64gcc6_release.tar.gz
+        run: tar xzf of_v0.12.0_linux64gcc6_release.tar.gz
 
-      # Install dependencies
-      - name: Install dependencies
+      - name: Cache apt packages (OF dependencies)
+        uses: actions/cache@v3
+        with:
+          path: |
+            /var/cache/apt/archives
+            /var/lib/apt/lists
+          key: ${{ runner.os }}-apt-of-${{ hashFiles('of_v0.12.0_linux64gcc6_release/scripts/linux/ubuntu/install_dependencies.sh', '/etc/apt/sources.list', '/etc/apt/sources.list.d/**') }}
+          restore-keys: |
+            ${{ runner.os }}-apt-of-
+
+      - name: Install OF dependencies
         run: |
           cd of_v0.12.0_linux64gcc6_release/scripts/linux/ubuntu
+          sudo apt-get update
           sudo ./install_dependencies.sh
+          cd ../../..
 
-      # Compile OpenFrameworks
+      - name: Configure ccache
+        uses: hendrikmuhs/ccache-action@v1.2.14
+        with:
+          key: of-build-${{ hashFiles('of_v0.12.0_linux64gcc6_release/scripts/linux/compileOF.sh', 'of_v0.12.0_linux64gcc6_release/libs/**', 'of_v0.12.0_linux64gcc6_release/addons/**') }}
+
       - name: Compile OpenFrameworks
         run: |
           cd of_v0.12.0_linux64gcc6_release/scripts/linux
           ./compileOF.sh -j$(nproc)
 
-      # Clone required addons
-      - name: Check if ofxImGui directory exists
-        run: |
-          if [ ! -d "of_v0.12.0_linux64gcc6_release/addons/ofxImGui" ]; then
-            git clone --branch develop https://github.com/jvcleave/ofxImGui of_v0.12.0_linux64gcc6_release/addons/ofxImGui
-          fi
-      - name: Clone ofxTextureRecorder
-        run: |
-          if [ ! -d "of_v0.12.0_linux64gcc6_release/addons/ofxTextureRecorder" ]; then
-            git clone https://github.com/arturoc/ofxTextureRecorder of_v0.12.0_linux64gcc6_release/addons/ofxTextureRecorder 
-          fi
-
-      # Checkout the fireflies_port repository
-      - name: Checkout repository
-        uses: actions/checkout@v3
+      - name: Upload OpenFrameworks binaries as artifact
+        uses: actions/upload-artifact@v3
         with:
-          path: of_v0.12.0_linux64gcc6_release/apps/myApps/fireflies_port
+          name: of-binaries
+          path: of_v0.12.0_linux64gcc6_release
 
-      - name: Build the project
+  build-and-release-fireflies:
+    needs: build-of
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout fireflies_port code
+        uses: actions/checkout@v3
+
+      - name: Download OpenFrameworks pre-built binaries
+        uses: actions/download-artifact@v3
+        with:
+          name: of-binaries
+          path: of_v0.12.0_linux64gcc6_release
+
+      - name: Cache apt packages (fireflies dependencies)
+        uses: actions/cache@v3
+        with:
+          path: |
+            /var/cache/apt/archives
+            /var/lib/apt/lists
+          key: ${{ runner.os }}-apt-fireflies-${{ hashFiles('/etc/apt/sources.list', '/etc/apt/sources.list.d/**') }}
+          restore-keys: |
+            ${{ runner.os }}-apt-fireflies-
+
+      - name: Install fireflies dependencies
         run: |
+          sudo apt-get update
+          sudo apt-get install -y libxcursor-dev libxrandr-dev libxi-dev libgl1-mesa-dev mesa-common-dev libasound2-dev libpulse-dev libudev-dev libfreeimage-dev libfreetype6-dev libavformat-dev libavcodec-dev libswscale-dev libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev
+
+      - name: Configure ccache (fireflies)
+        uses: hendrikmuhs/ccache-action@v1.2.14
+        with:
+          key: fireflies-build-${{ hashFiles('Makefile', '**/*.cpp', '**/*.h') }}
+
+      - name: Build fireflies_port
+        run: |
+          mkdir -p of_v0.12.0_linux64gcc6_release/apps/myApps/fireflies_port
+          cp -r * of_v0.12.0_linux64gcc6_release/apps/myApps/fireflies_port
           cd of_v0.12.0_linux64gcc6_release/apps/myApps/fireflies_port
           make -j$(nproc)
 
-      # Upload binary as release
-      - name: Create a Release
+      - name: Create Release
         id: create_release
         uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: v1.0.0
-          release_name: Release v1.0.0
+          tag_name: ${{ github.sha }}
+          release_name: Release ${{ github.sha }}
           draft: false
           prerelease: false
 
-      - name: Upload binary as release asset
+      - name: Upload Release Asset
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: of_v0.12.0_linux64gcc6_release/apps/myApps/fireflies_port/bin/fireflies_port
-          asset_name: fireflies_port
+          asset_name: fireflies_port-linux64
           asset_content_type: application/octet-stream
