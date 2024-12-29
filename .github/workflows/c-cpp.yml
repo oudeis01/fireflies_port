@@ -62,11 +62,11 @@ jobs:
         with:
           path: of_v0.12.0_linux64gcc6_release/apps/myApps/fireflies_port
 
-      # Build the project
       - name: Build the project
         run: |
           cd of_v0.12.0_linux64gcc6_release/apps/myApps/fireflies_port
-          make -j$(nproc)
+          make -j$(nproc) CXXFLAGS="-D__has_feature(x)=0"
+
 
       # Upload binary as release
       - name: Create a Release
