@@ -1,0 +1,85 @@
+name: build
+
+on:
+  # push:
+  #   branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build-ubuntu:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        cfg:
+          - {target: linux64, libs: 64gcc6}  # Example configuration
+
+    env:
+      ccache: ccache  # Set ccache environment variable
+
+    steps:
+      # Checking out the current repo into the folder "fireflies"
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          path: fireflies
+
+      # Checkout openFrameworks with submodules into the folder "ofx"
+      - name: Checkout openFrameworks
+        uses: actions/checkout@v4
+        with:
+          repository:  openframeworks/openFrameworks
+          path: ofx
+          submodules: true
+
+      # Addons: Checking out additional addons into the correct openFrameworks directory
+      - name: Checkout ofxImGui addon
+        uses: actions/checkout@v4
+        with:
+          repository:  jvcleave/ofxImGui
+          path: ofx/addons/ofxImGui
+          branch: develop
+      - name: Checkout ofxTextureRecorder addon
+        uses: actions/checkout@v4
+        with:
+          repository:  arturoc/ofxTextureRecorder
+          path: ofx/addons/ofxTextureRecorder
+
+      # ccache setup with key based on target and libs
+      - name: ccache
+        uses: hendrikmuhs/ccache-action@v1.2.14  # Replace with desired version
+        with:
+          key: ${{ matrix.cfg.target }}-${{ matrix.cfg.libs }}
+
+      # Download libs (adapted from official workflow)
+      - name: Download libs
+        run: ./ofx/scripts/linux/download_libs.sh -a ${{ matrix.cfg.libs }};
+
+      # Install dependencies (adapted from official workflow)
+      - name: Install dependencies
+        run: ./ofx/scripts/ci/${{ matrix.cfg.target }}/install.sh;
+
+      # Build openFrameworks (adapted from official workflow)
+      - name: Build
+        run: |
+             export PATH="/usr/lib/ccache:/usr/local/opt/ccache/libexec:$PATH";
+             if [ "$TARGET" = "linux64" ]; then
+                ./ofx/scripts/ci/linux64/build.sh;
+                ./ofx/scripts/ci/${{ matrix.cfg.target }}/run_tests.sh;
+             else
+                ./ofx/scripts/ci/${{ matrix.cfg.target }}/build.sh;
+             fi
+
+      # Building the project
+      - name: Building firefliesApp
+        run: |
+          export OF_ROOT=${{ github.workspace }}/ofx
+          cd ./fireflies/firefliesApp
+           make -j$(nproc) -f Makefile.github-action
+
+      # Upload executable binaries to GitHub
+      - name: Uploading artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: Linux Artifacts
+          path: ./fireflies/firefliesApp/bin/
