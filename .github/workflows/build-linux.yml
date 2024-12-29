@@ -26,17 +26,19 @@ jobs:
           - { target: linux64, libs: 64gcc6 }
     env:
       TARGET: ${{ matrix.cfg.target }}
-      MY_PROJECT_DIR: "fireflies-port"
+      MY_PROJECT_DIR: "fireflies_port"
 
     steps:
-    - name: Checkout Project Repository
+    - name: Checkout openFrameworks Repository
       uses: actions/checkout@v4
+      with:
+        repository: openframeworks/openFrameworks
+        path: of_root
 
-    - name: Clone openFrameworks Repository
-      run: |
-        git clone https://github.com/openframeworks/openFrameworks.git of_root
-        cd of_root
-        git checkout stable # Use a specific branch or tag if needed
+    - name: Checkout Your Project Repository
+      uses: actions/checkout@v4
+      with:
+        path: of_root/apps/myApps/$MY_PROJECT_DIR
 
     - name: Checkout ofxImGui addon
       uses: actions/checkout@v4
@@ -50,11 +52,6 @@ jobs:
         repository:  arturoc/ofxTextureRecorder
         path: of_root/addons/ofxTextureRecorder
 
-    - name: Move Your Project into openFrameworks
-      run: |
-        mkdir -p of_root/apps/myApps/$MY_PROJECT_DIR
-        cp -r . of_root/apps/myApps/$MY_PROJECT_DIR
-
     - name: Download openFrameworks Libraries
       run: cd of_root && ./scripts/linux/download_libs.sh -a ${{ matrix.cfg.libs }}
 
@@ -67,102 +64,10 @@ jobs:
     - name: Build Your Project
       run: |
         cd of_root/apps/myApps/$MY_PROJECT_DIR
-        make -j$(nproc)
+        make
 
     - name: Upload Artifact (Binary)
       uses: actions/upload-artifact@v3
       with:
         name: ${{ matrix.cfg.target }}-binary
         path: of_root/apps/myApps/$MY_PROJECT_DIR/bin
-
-
-# jobs:
-#   build-ubuntu:
-#     runs-on: ubuntu-latest
-#     strategy:
-#       matrix:
-#         cfg:
-#           - {target: linux64, libs: 64gcc6}  # Example configuration
-
-#     env:
-#       ccache: ccache  # Set ccache environment variable
-
-#     steps:
-#       # Checking out the current repo into the folder "fireflies"
-#       - name: Checkout
-#         uses: actions/checkout@v4
-#         with:
-#           path: fireflies
-
-#       # Checkout openFrameworks with submodules into the folder "ofx"
-#       - name: Checkout openFrameworks
-#         uses: actions/checkout@v4
-#         with:
-#           repository:  openframeworks/openFrameworks
-#           path: ofx
-#           submodules: true
-
-#       # Addons: Checking out additional addons into the correct openFrameworks directory
-#       - name: Checkout ofxImGui addon
-#         uses: actions/checkout@v4
-#         with:
-#           repository:  jvcleave/ofxImGui
-#           path: ofx/addons/ofxImGui
-#           ref: develop
-#       - name: Checkout ofxTextureRecorder addon
-#         uses: actions/checkout@v4
-#         with:
-#           repository:  arturoc/ofxTextureRecorder
-#           path: ofx/addons/ofxTextureRecorder
-
-#       # ccache setup with key based on target and libs
-#       - name: ccache
-#         uses: hendrikmuhs/ccache-action@v1.2.14  # Replace with desired version
-#         with:
-#           key: ${{ matrix.cfg.target }}-${{ matrix.cfg.libs }}
-
-#       # install libunwind-dev
-#       - name: Install libunwind-dev
-#         run: sudo apt-get install libunwind-dev
-
-#       # install deps
-#       - name: Install deps for ubuntu
-#         run: sudo ./ofx/scripts/linux/ubuntu/install_dependencies.sh;
-
-#       # install codecs
-#       - name: Install codecs
-#         run: sudo ./ofx/scripts/linux/ubuntu/install_codecs.sh;
-
-#       # Download libs (adapted from official workflow)
-#       - name: Download libs
-#         run: ./ofx/scripts/linux/download_libs.sh -a ${{ matrix.cfg.libs }};
-
-#       # Install dependencies (adapted from official workflow)
-#       - name: Install dependencies
-#         run: ./ofx/scripts/ci/${{ matrix.cfg.target }}/install.sh;
-
-#       # Build openFrameworks (adapted from official workflow)
-#       - name: Build
-#         run: |
-#             cd ./ofx/libs/openFrameworksCompiled/project
-#             make -j$(nproc)
-# #  if [ "$TARGET" = "linux64" ]; then
-# #     ./ofx/scripts/ci/linux64/build.sh;
-# #     ./ofx/scripts/ci/${{ matrix.cfg.target }}/run_tests.sh;
-# #  else
-# #     ./ofx/scripts/ci/${{ matrix.cfg.target }}/build.sh;
-# #  fi
-
-#       # Building the project
-#       - name: Building firefliesApp
-#         run: |
-#           export OF_ROOT=${{ github.workspace }}/ofx
-#           cd ./fireflies/firefliesApp
-#            make -j$(nproc) -f Makefile.github-action
-
-#       # Upload executable binaries to GitHub
-#       - name: Uploading artifacts
-#         uses: actions/upload-artifact@v4
-#         with:
-#           name: Linux Artifacts
-#           path: ./fireflies/firefliesApp/bin/
