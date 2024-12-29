@@ -53,8 +53,8 @@ jobs:
           sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
           sudo apt update
           sudo apt update && sudo apt install build-essential -y
-          sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-14 100
-          sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-14 100
+          # sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-14 100
+          # sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-14 100
     - name: Show GCC Version
       run: g++ --version
     - name: Checkout Repository
