@@ -22,6 +22,9 @@ jobs:
       - name: Extract OpenFrameworks
         run: tar xzf of_v0.12.0_linux64gcc6_release.tar.gz
 
+      - name: Remove examples folder
+        run: rm -rf of_v0.12.0_linux64gcc6_release/examples
+
       - name: Cache apt packages (OF dependencies)
         uses: actions/cache@v3
         with:
