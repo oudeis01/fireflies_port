@@ -46,15 +46,16 @@ jobs:
           ./compileOF.sh -j$(nproc)
 
       # Clone required addons
-      - name: Clone ofxImGui (develop branch)
+      - name: Check if ofxImGui directory exists
         run: |
-          cd of_v0.12.0_linux64gcc6_release/addons
-          git clone --branch develop https://github.com/jvcleave/ofxImGui
-
+          if [ ! -d "of_v0.12.0_linux64gcc6_release/addons/ofxImGui" ]; then
+            git clone --branch develop https://github.com/jvcleave/ofxImGui of_v0.12.0_linux64gcc6_release/addons/ofxImGui
+          fi
       - name: Clone ofxTextureRecorder
         run: |
-          cd of_v0.12.0_linux64gcc6_release/addons
-          git clone https://github.com/arturoc/ofxTextureRecorder
+          if [ ! -d "of_v0.12.0_linux64gcc6_release/addons/ofxTextureRecorder" ]; then
+            git clone https://github.com/arturoc/ofxTextureRecorder of_v0.12.0_linux64gcc6_release/addons/ofxTextureRecorder 
+          fi
 
       # Checkout the fireflies_port repository
       - name: Checkout repository
@@ -66,7 +67,6 @@ jobs:
         run: |
           cd of_v0.12.0_linux64gcc6_release/apps/myApps/fireflies_port
           make -j$(nproc)
-
 
       # Upload binary as release
       - name: Create a Release
