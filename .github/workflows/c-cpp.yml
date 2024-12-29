@@ -10,6 +10,21 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # Install libunwind
+      - name: Install libunwind
+        run: sudo apt-get install libunwind-dev
+
+      # Cache OpenFrameworks build
+      - name: Cache OpenFrameworks build
+        uses: actions/cache@v3
+        with:
+          path: |
+            of_v0.12.0_linux64gcc6_release/libs
+            of_v0.12.0_linux64gcc6_release/addons
+          key: ${{ runner.os }}-of-v0.12.0-libs-${{ hashFiles('of_v0.12.0_linux64gcc6_release/scripts/linux/ubuntu/install_dependencies.sh') }}
+          restore-keys: |
+            ${{ runner.os }}-of-
+
       # Download OpenFrameworks
       - name: Download OpenFrameworks
         run: wget https://github.com/openframeworks/openFrameworks/releases/download/0.12.0/of_v0.12.0_linux64gcc6_release.tar.gz
@@ -30,13 +45,24 @@ jobs:
           cd of_v0.12.0_linux64gcc6_release/scripts/linux
           ./compileOF.sh -j$(nproc)
 
-      # Checkout the repository
+      # Clone required addons
+      - name: Clone ofxImGui (develop branch)
+        run: |
+          cd of_v0.12.0_linux64gcc6_release/addons
+          git clone --branch develop https://github.com/jvcleave/ofxImGui
+
+      - name: Clone ofxTextureRecorder
+        run: |
+          cd of_v0.12.0_linux64gcc6_release/addons
+          git clone https://github.com/arturoc/ofxTextureRecorder
+
+      # Checkout the fireflies_port repository
       - name: Checkout repository
         uses: actions/checkout@v3
         with:
           path: of_v0.12.0_linux64gcc6_release/apps/myApps/fireflies_port
 
-      # Compile the project
+      # Build the project
       - name: Build the project
         run: |
           cd of_v0.12.0_linux64gcc6_release/apps/myApps/fireflies_port
