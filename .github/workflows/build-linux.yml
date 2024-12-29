@@ -16,6 +16,7 @@ concurrency:
 
 env:
   ccache: ccache  
+  MY_PROJECT_DIR: "fireflies-port"
 
 jobs:
   build-project:
@@ -26,9 +27,34 @@ jobs:
           - { target: linux64, libs: 64gcc6 }
     env:
       TARGET: ${{ matrix.cfg.target }}
-      MY_PROJECT_DIR: "fireflies_port"
 
     steps:
+    - name: Set Up Dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y ccache wget2 make curl libunwind-dev libjack-jackd2-dev \
+          freeglut3-dev libasound2-dev libxmu-dev libxxf86vm-dev g++ libgl1-mesa-dev libglu1-mesa-dev \
+          libraw1394-dev libudev-dev libdrm-dev libglew-dev libopenal-dev libsndfile1-dev \
+          libfreeimage-dev libcairo2-dev libfreetype6-dev libssl-dev libpulse-dev libusb-1.0-0-dev \
+          libgtk2.0-dev libopencv-dev libassimp-dev librtaudio-dev gdb libglfw3-dev liburiparser-dev \
+          libcurl4-openssl-dev libpugixml-dev libgconf-2-4 libgtk2.0-0 libpoco-dev libxcursor-dev \
+          libxi-dev libxinerama-dev libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev \
+          gstreamer1.0-libav gstreamer1.0-pulseaudio gstreamer1.0-x gstreamer1.0-plugins-bad \
+          gstreamer1.0-alsa gstreamer1.0-plugins-base gstreamer1.0-plugins-good
+
+    - name: Cache ccache
+      uses: actions/cache@v3
+      with:
+        path: ~/.ccache
+        key: ccache-${{ runner.os }}-${{ matrix.cfg.target }}
+        restore-keys: |
+          ccache-${{ runner.os }}-
+
+    - name: Configure ccache
+      run: |
+        ccache --zero-stats
+        ccache --max-size=5G
+
     - name: Checkout openFrameworks Repository
       uses: actions/checkout@v4
       with:
@@ -67,7 +93,8 @@ jobs:
     - name: Build Your Project
       run: |
         cd of_root/apps/myApps/$MY_PROJECT_DIR
-        make
+        make -j$(nproc)
+        ccache --show-stats
 
     - name: Upload Artifact (Binary)
       uses: actions/upload-artifact@v3
