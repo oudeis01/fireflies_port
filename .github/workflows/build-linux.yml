@@ -1,9 +1,14 @@
-name: build
+name: build-project
 
 on:
   push:
-    branches: [ main ]
-
+    paths-ignore:
+      - '**/*.md'
+      - 'docs/**'
+  pull_request:
+    paths-ignore:
+      - '**/*.md'
+      - 'docs/**'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -13,50 +18,64 @@ env:
   ccache: ccache  
 
 jobs:
-  build-linux64-platforms:
+  build-project:
     runs-on: ubuntu-latest
     strategy:
-        matrix:
-          cfg:
-          - {target: linux64, libs: 64gcc6}
+      matrix:
+        cfg:
+          - { target: linux64, libs: 64gcc6 }
     env:
-     TARGET: ${{matrix.cfg.target}}
+      TARGET: ${{ matrix.cfg.target }}
+      MY_PROJECT_DIR: "fireflies-port"
+
     steps:
-    - name: Remove Old lib-unwind
-      run: if [ "$TARGET" = "linux64" ]; then
-            sudo apt-get remove libunwind-14 -y;
-           fi
-    # - name: Cache Packages
-    #   uses: awalsh128/cache-apt-pkgs-action@latest
-    #   with:
-    #     packages: wget2 make curl libunwind-dev libjack-jackd2-0 libjack-jackd2-dev freeglut3-dev libasound2-dev libxmu-dev libxxf86vm-dev g++ libgl1-mesa-dev libglu1-mesa-dev libraw1394-dev libudev-dev libdrm-dev libglew-dev libopenal-dev libsndfile1-dev libfreeimage-dev libcairo2-dev libfreetype6-dev libssl-dev libpulse-dev libusb-1.0-0-dev libgtk2.0-dev libopencv-dev libassimp-dev librtaudio-dev gdb libglfw3-dev liburiparser-dev libcurl4-openssl-dev libpugixml-dev libgconf-2-4 libgtk2.0-0 libpoco-dev libxcursor-dev libxi-dev libxinerama-dev libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev gstreamer1.0-libav gstreamer1.0-pulseaudio gstreamer1.0-x gstreamer1.0-plugins-bad gstreamer1.0-alsa gstreamer1.0-plugins-base gstreamer1.0-plugins-good
-    #     version: 1.0
+    - name: Checkout Project Repository
+      uses: actions/checkout@v4
 
-    - uses: actions/checkout@v4
-    - name: ccache
-      uses: hendrikmuhs/ccache-action@v1.2.14
+    - name: Clone openFrameworks Repository
+      run: |
+        git clone https://github.com/openframeworks/openFrameworks.git of_root
+        cd of_root
+        git checkout stable # Use a specific branch or tag if needed
+
+    - name: Checkout ofxImGui addon
+      uses: actions/checkout@v4
       with:
-        key: ${{ matrix.cfg.target }}-${{ matrix.cfg.libs }}
+        repository:  jvcleave/ofxImGui
+        path: of_root/addons/ofxImGui
+        ref: develop
+    - name: Checkout ofxTextureRecorder addon
+      uses: actions/checkout@v4
+      with:
+        repository:  arturoc/ofxTextureRecorder
+        path: of_root/addons/ofxTextureRecorder
 
-    - name: Download libs
-      run: ./scripts/linux/download_libs.sh -a ${{matrix.cfg.libs}};
-    - name: Install dependencies
-      run: ./scripts/ci/$TARGET/install.sh;
-    - name: Build
-      run: if [ "$TARGET" = "linux64" ]; then
-            scripts/ci/linux64/build.sh;
-            scripts/ci/$TARGET/run_tests.sh;
-           else
-            scripts/ci/$TARGET/build.sh;
-           fi
-    # - name: Upload Libs
-    #   run: scripts/ci/upload_of_lib.sh;
-    #   env:
-    #     GA_CI_SECRET: ${{ secrets.CI_SECRET }}
+    - name: Move Your Project into openFrameworks
+      run: |
+        mkdir -p of_root/apps/myApps/$MY_PROJECT_DIR
+        cp -r . of_root/apps/myApps/$MY_PROJECT_DIR
+
+    - name: Download openFrameworks Libraries
+      run: cd of_root && ./scripts/linux/download_libs.sh -a ${{ matrix.cfg.libs }}
+
+    - name: Install Dependencies
+      run: cd of_root && ./scripts/ci/${{ matrix.cfg.target }}/install.sh
+
+    - name: Build openFrameworks Core
+      run: cd of_root && ./scripts/ci/${{ matrix.cfg.target }}/build.sh
+
+    - name: Build Your Project
+      run: |
+        cd of_root/apps/myApps/$MY_PROJECT_DIR
+        make -j$(nproc)
+
+    - name: Upload Artifact (Binary)
+      uses: actions/upload-artifact@v3
+      with:
+        name: ${{ matrix.cfg.target }}-binary
+        path: of_root/apps/myApps/$MY_PROJECT_DIR/bin
 
 
-
-    
 # jobs:
 #   build-ubuntu:
 #     runs-on: ubuntu-latest
