@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  build-of: # Build OpenFrameworks with ccache
+  build-of:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -43,6 +43,16 @@ jobs:
         uses: hendrikmuhs/ccache-action@v1.2.14
         with:
           key: of-build-${{ hashFiles('of_v0.12.0_linux64gcc6_release/scripts/linux/compileOF.sh', 'of_v0.12.0_linux64gcc6_release/libs/**', 'of_v0.12.0_linux64gcc6_release/addons/**') }}
+
+      - name: Clone ofxImGui
+        run: |
+          cd of_v0.12.0_linux64gcc6_release/addons
+          git clone --depth 1 -b develop https://github.com/jvcleave/ofxImGui
+
+      - name: Clone ofxTextureRecorder
+        run: |
+          cd of_v0.12.0_linux64gcc6_release/addons
+          git clone --depth 1 https://github.com/arturoc/ofxTextureRecorder
 
       - name: Compile OpenFrameworks
         run: |
