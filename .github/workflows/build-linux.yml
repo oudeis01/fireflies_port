@@ -77,7 +77,7 @@ jobs:
 
       # Upload executable binaries to GitHub
       - name: Uploading artifacts
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: Linux Artifacts
           path: ./fireflies/firefliesApp/bin/
