@@ -32,14 +32,9 @@ jobs:
 
     steps:
 
-    - name: Configure ccache for g++-11
+
+    - name: Set Up Dependencies
       run: |
-        sudo apt-get install -y gcc-11 g++-11
-        sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-11 100
-        sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-11 100
-        ccache --set-config=compiler_check=content
-        - name: Set Up Dependencies
-          run: |
             sudo apt-get update
             sudo apt-get install -y ccache wget2 make curl libunwind-dev libjack-jackd2-dev \
               freeglut3-dev libasound2-dev libxmu-dev libxxf86vm-dev g++ libgl1-mesa-dev libglu1-mesa-dev \
@@ -49,7 +44,7 @@ jobs:
               libcurl4-openssl-dev libpugixml-dev libgconf-2-4 libgtk2.0-0 libpoco-dev libxcursor-dev \
               libxi-dev libxinerama-dev libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev \
               gstreamer1.0-libav gstreamer1.0-pulseaudio gstreamer1.0-x gstreamer1.0-plugins-bad \
-              gstreamer1.0-alsa gstreamer1.0-plugins-base gstreamer1.0-plugins-good
+              gstreamer1.0-alsa gstreamer1.0-plugins-base gstreamer1.0-plugins-good ccache
 
     - name: Cache ccache
       uses: actions/cache@v3
@@ -58,6 +53,14 @@ jobs:
         key: ccache-${{ runner.os }}-${{ matrix.cfg.target }}
         restore-keys: |
           ccache-${{ runner.os }}-
+
+    - name: Configure ccache for g++-11
+      run: |
+        sudo apt-get install -y gcc-11 g++-11
+        sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-11 100
+        sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-11 100
+        ccache --set-config=compiler_check=content
+        
 
     - name: Configure ccache
       run: |
@@ -95,7 +98,7 @@ jobs:
 
     - name: Install Dependencies
       run: cd of_root && ./scripts/ci/${{ matrix.cfg.target }}/install.sh
-      
+
     - name: Check ccache Stats
       run: ccache -s
 
